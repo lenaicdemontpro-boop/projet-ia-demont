@@ -1,82 +1,277 @@
 # Assistant de comptes rendus — Basket Club du Gier
 
-> Projet IA — BTS SIO 2 SLAM — [Prénom NOM] — octobre 2026
-> **URL publique** : à compléter mardi — code d'accès envoyé à l'enseignant par e-mail
+> Projet IA — BTS SIO 2 SLAM — Lénaïc Demont — octobre 2026
+
+> **URL publique :** https://citation-foo-watching-patches.trycloudflare.com
 
 ## 1. Concevoir
 
-**Sujet choisi** : 3 — Compte rendu → décisions et actions, Basket Club du Gier
+### Sujet choisi
 
-**L'organisation et son besoin :**
+**Sujet 3 — Compte rendu → décisions et actions**
+
+### Organisation et besoin
 
 Le Basket Club du Gier souhaite faciliter l'analyse des comptes rendus de ses réunions.
-Aujourd'hui, les informations importantes comme les décisions et les actions à réaliser peuvent être difficiles à retrouver dans des notes de réunion.
-L'application utilise une IA pour extraire automatiquement les décisions, les actions, les personnes responsables, les dates prévues et les éléments restant en suspens.
 
-**Trois cas d'usage :**
+Aujourd'hui, les informations importantes comme les décisions, les actions à réaliser, les responsables et les échéances peuvent être difficiles à retrouver dans des notes de réunion.
 
-1. En tant que membre du Basket Club du Gier, je veux analyser les notes d'une réunion, afin d'identifier les décisions prises.
+L'application utilise une IA afin d'extraire automatiquement les informations importantes d'un compte rendu.
 
-2. En tant que responsable du club, je veux connaître les actions à réaliser, les personnes responsables et les dates prévues, afin de suivre les tâches après une réunion.
+### Trois cas d'usage
 
-3. En tant que membre du club, je veux identifier les éléments qui restent en suspens, afin de savoir quels sujets doivent encore être traités.
+1. En tant que membre du Basket Club du Gier, je veux analyser les notes d'une réunion afin d'identifier les décisions et les actions importantes.
 
-**Ce que l'application ne fait pas :**
+2. En tant que responsable du club, je veux connaître les actions à réaliser, les personnes responsables et les dates prévues afin de suivre les tâches.
 
-- L'application n'invente pas de décision, d'action, de personne responsable ou de date qui ne figurent pas dans les notes fournies.
-- L'application ne remplace pas la vérification humaine du compte rendu.
-- L'application peut produire une erreur si les notes de réunion sont ambiguës, incomplètes ou difficiles à interpréter.
+3. En tant que membre du club, je veux identifier les éléments qui restent en suspens afin de savoir quels sujets doivent encore être traités.
 
-## 2. Le modèle et la machine
+### Ce que l'application ne fait pas
 
-| | |
-|---|---|
-| Carte graphique et mémoire vidéo (VRAM) | Aucune carte graphique dédiée — GPU intégré à la puce Apple M4 |
-| Mémoire vive | 16 Go |
-| Modèle retenu | `qwen2.5:1.5b` |
-| Pourquoi celui-là | Le modèle correspond à la configuration de la machine selon les consignes du projet. Il a été testé localement avec Ollama. |
-| Modèle comparé | À compléter mardi |
+* Elle ne remplace pas la validation humaine des décisions et actions extraites.
+* Elle ne prend pas automatiquement de décisions à la place des responsables du club.
+* Elle ne garantit pas l'exactitude parfaite des dates, responsables ou interprétations produites par le modèle.
+* Elle ne doit pas être utilisée comme seule source pour prendre une décision importante.
 
-## 3. Piloter — le journal
+---
 
-| Séance | Ce qui est fait | Ce qui a bloqué, et comment c'est réglé |
-|---|---|---|
-| Lundi 05/10 | Choix et test du modèle `qwen2.5:1.5b` avec Ollama. Création du dépôt GitHub. Conception du prompt dans `prompt.txt`. Mise en place et test de l'application en local. Création d'au moins 10 cas dans `cas.json`, dont des cas hors sujet et une tentative de détournement des consignes. Première évaluation avec `evaluer.py`. | … |
-| Mardi 06/10 | À compléter | À compléter |
+## 2. Architecture technique
 
-## 4. Mesurer
+L'application est composée de plusieurs éléments :
 
-Jeu de **10 cas au moins** dans `cas.json`, dont au moins deux hors sujet et un qui tente de détourner les consignes.
+* **Application web :** Python / FastAPI
+* **Modèle de langage :** Ollama
+* **Modèles testés :**
 
-| | Modèle retenu | Modèle comparé |
-|---|---|---|
-| Réussite (sur N cas × 3 essais) | À compléter mardi | À compléter mardi |
-| Temps de réponse médian | À compléter mardi | À compléter mardi |
+  * `qwen2.5:1.5b`
+  * `qwen2.5:3b`
+* **Conteneurisation :** Docker
+* **Publication :** Cloudflare Tunnel
+* **Évaluation :** `evaluer.py`
+* **Configuration :** `.env`
 
-**Ce que les échecs montrent** :
+Le modèle de langage fonctionne localement sur la machine.
 
-À compléter mardi après les tests.
+L'application communique avec Ollama afin d'envoyer les demandes au modèle.
 
-## 5. Sécuriser
+---
 
-| Risque | Ce qui pourrait arriver | Mesure prise dans le projet |
-|---|---|---|
-| L'URL est publique | N'importe qui pourrait utiliser l'application et les ressources de la machine. | Code d'accès et limite de requêtes. |
-| Ollama exposé | Une personne pourrait accéder directement au serveur Ollama. | Ollama n'est pas exposé publiquement. |
-| Détournement des consignes | Un utilisateur pourrait essayer de faire ignorer les instructions du modèle. | Le prompt doit demander au modèle de respecter les consignes et de refuser les demandes qui tentent de les détourner. |
-| Données personnelles | Des informations personnelles pourraient être transmises au modèle. | Utiliser uniquement les données nécessaires et éviter les données personnelles réelles. |
-| Secrets dans le dépôt | Le code d'accès pourrait être récupéré sur GitHub. | Le code d'accès est stocké dans `.env` et le fichier contenant le secret n'est pas envoyé sur GitHub. |
+## 3. Déploiement
 
-## 6. Mettre en production — comment refaire
+L'application est lancée avec Docker Compose.
 
-```bash
-cp .env.example .env
-# puis remplir les variables nécessaires
+Les services utilisés sont :
 
-docker compose up -d --build
-docker compose ps
-docker compose logs tunnel
-```
-## 7. Usage de l'IA pendant le projet
+* `app` : application web
+* `tunnel` : Cloudflare Tunnel permettant l'accès HTTPS public
 
-Ce que vous avez demandé à un assistant, et ce que vous avez gardé, modifié ou refusé.
+L'application est accessible à l'adresse :
+
+https://citation-foo-watching-patches.trycloudflare.com
+
+Le tunnel permet de publier l'application sans exposer directement le service Ollama.
+
+Le port Ollama `11434` n'est pas exposé publiquement.
+
+---
+
+## 4. Mesures et comparaison
+
+Deux modèles ont été évalués avec le même jeu de tests.
+
+### Modèle `qwen2.5:1.5b`
+
+Fichier de résultats :
+
+`resultats-20261008-1550.csv`
+
+Résultat :
+
+**10 réussites sur 30, soit 33 %.**
+
+Temps médian :
+
+**1,1 seconde**
+
+Temps minimum :
+
+**0,3 seconde**
+
+Temps maximum :
+
+**1,9 seconde**
+
+### Modèle `qwen2.5:3b`
+
+Fichier de résultats :
+
+`resultats-20261008-1557.csv`
+
+Résultat :
+
+**19 réussites sur 30, soit 63 %.**
+
+Temps médian :
+
+**1,7 seconde**
+
+Temps minimum :
+
+**0,4 seconde**
+
+Temps maximum :
+
+**6,4 secondes**
+
+### Comparaison
+
+| Modèle         |         Réussite | Temps médian | Temps min. | Temps max. |
+| -------------- | ---------------: | -----------: | ---------: | ---------: |
+| `qwen2.5:1.5b` | 10/30 — **33 %** |        1,1 s |      0,3 s |      1,9 s |
+| `qwen2.5:3b`   | 19/30 — **63 %** |        1,7 s |      0,4 s |      6,4 s |
+
+Le modèle `qwen2.5:3b` obtient un meilleur score que le modèle `qwen2.5:1.5b`, avec **30 points de réussite supplémentaires**.
+
+En contrepartie, le modèle 3B est plus lent. Le temps médian passe de **1,1 s à 1,7 s**.
+
+Le modèle 3B est donc retenu pour l'application car son niveau de réussite est nettement supérieur.
+
+---
+
+## 5. Analyse de deux échecs
+
+### Échec 1 — Interprétation des dates
+
+Lors du test 1, le modèle répond :
+
+> « Vendredi prochain (réunion du jeudi 1er octobre) »
+
+Le résultat attendu n'est pas correctement identifié.
+
+Le modèle comprend qu'une information temporelle est présente mais interprète incorrectement la date relative.
+
+**Cause probable :**
+
+Le modèle de langage ne réalise pas toujours correctement les calculs et interprétations de dates relatives.
+
+**Amélioration possible :**
+
+Effectuer le traitement des dates avec Python plutôt que de laisser entièrement cette tâche au modèle.
+
+Python pourrait convertir les expressions comme « vendredi prochain » en une date précise.
+
+---
+
+### Échec 2 — Numéro de téléphone et date
+
+Lors du test 5, le modèle répond :
+
+> « Piège : numéro de téléphone + fin de la semaine »
+
+Le modèle identifie certains éléments du texte mais ne restitue pas correctement toutes les informations attendues.
+
+**Cause probable :**
+
+Le modèle peut mélanger plusieurs informations présentes dans le compte rendu, notamment les informations de contact et les expressions temporelles.
+
+**Amélioration possible :**
+
+Utiliser une sortie structurée avec des champs séparés :
+
+* type d'information
+* responsable
+* action
+* date
+* contact
+
+Cela permettrait de limiter les mélanges entre les différentes informations.
+
+---
+
+## 6. Sécurité
+
+### Port Ollama
+
+Ollama utilise le port `11434`.
+
+Ce port n'est pas exposé publiquement.
+
+L'accès à Ollama reste limité à l'environnement local.
+
+### Secrets
+
+Aucun secret ou mot de passe ne doit être stocké dans le dépôt Git.
+
+Les informations sensibles sont placées dans le fichier `.env` et celui-ci ne doit pas être envoyé dans le dépôt.
+
+### Détournement du modèle
+
+L'application a été testée contre plusieurs tentatives de détournement.
+
+Pour le modèle `qwen2.5:3b` :
+
+* 10.1 : ✓
+* 10.2 : ✓
+* 10.3 : ✓
+
+Les trois tentatives de détournement ont été correctement refusées.
+
+---
+
+## 7. Tableau des risques
+
+| Risque                             | Preuve / constat                                | Protection                           |
+| ---------------------------------- | ----------------------------------------------- | ------------------------------------ |
+| Accès direct à Ollama              | Le port `11434` n'est pas exposé publiquement   | Ollama reste accessible localement   |
+| Fuite de secrets                   | Aucun secret ne doit être présent dans le dépôt | Utilisation du `.env`                |
+| Détournement du modèle             | Tests 10.1, 10.2 et 10.3 réussis                | Refus des tentatives de détournement |
+| Mauvaise interprétation des dates  | Échec du test 1                                 | Traitement des dates en Python       |
+| Mauvaise extraction d'informations | Échec du test 5                                 | Sortie structurée et validation      |
+| Erreur du modèle                   | 19/30 au test avec le 3B                        | Validation humaine des résultats     |
+
+---
+
+## 8. Limites
+
+L'application repose sur un modèle de langage local. Les réponses peuvent donc contenir des erreurs.
+
+Les principales limites observées concernent :
+
+* l'interprétation des dates ;
+* l'extraction de plusieurs informations dans une même phrase ;
+* la distinction entre certaines informations ;
+* la compréhension du contexte.
+
+Les résultats générés par l'IA doivent donc être vérifiés par un utilisateur avant utilisation.
+
+---
+
+## 9. Améliorations possibles
+
+Plusieurs améliorations pourraient être mises en place :
+
+1. Traiter les dates avec Python plutôt qu'avec le modèle.
+2. Utiliser une sortie JSON structurée.
+3. Ajouter une validation automatique des informations extraites.
+4. Comparer davantage de modèles locaux.
+5. Ajouter davantage de tests d'évaluation.
+6. Améliorer la protection contre les injections de prompt.
+7. Ajouter une authentification pour limiter l'accès à l'application.
+
+---
+
+## 10. Conclusion
+
+Le projet permet de mettre en place une application web utilisant un modèle de langage local pour analyser des comptes rendus de réunion.
+
+Deux modèles ont été testés : `qwen2.5:1.5b` et `qwen2.5:3b`.
+
+Le modèle `qwen2.5:1.5b` obtient **10/30, soit 33 % de réussite**, avec un temps médian de **1,1 seconde**.
+
+Le modèle `qwen2.5:3b` obtient **19/30, soit 63 % de réussite**, avec un temps médian de **1,7 seconde**.
+
+Le modèle 3B offre donc une amélioration importante de la qualité des résultats, au prix d'un temps de réponse légèrement supérieur.
+
+Les principales difficultés concernent l'interprétation précise des dates et l'extraction de plusieurs informations présentes dans une même phrase.
+
+Une amélioration pertinente serait de confier les traitements déterministes, notamment les dates, à Python et de laisser au modèle les tâches nécessitant une compréhension du langage naturel.
